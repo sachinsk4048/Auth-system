@@ -2,6 +2,7 @@
 const mongoose = require('mongoose')
 const User = require('../models/userModel')
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
 
 exports.getRegister = (req, res) => {
     res.render('register', {
@@ -50,13 +51,15 @@ exports.postLogin = async(req,res)=>{
     }
     const isMatch = await bcrypt.compare(password,userExist.password)
     if(isMatch){
+
+        const token = jwt.sign({id:userExist._id},process.env.JWT_SECRET,{expiresIn : process.env.JWT_EXP});
+        res.cookie('token' , token)
         return res.send('login successfully');
     }
     else{
-        res.render('login',{email : null ,error : 'worng Credential'})
+        res.render('login',{email,error : 'wrong Credential'})
     }
 
 
 }
 
-//1234 $2b$10$fYRixqvGRNwX6woqji/qu.rXdDa3sNbyXCA.E1PtEUo2Yu56D.mYS

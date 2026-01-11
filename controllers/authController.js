@@ -26,7 +26,7 @@ exports.postRegister = async (req, res) => {
                     email,
                     password: hash
                 })
-                res.render('login',{
+                res.render('login', {
                     email
                 });
             })
@@ -39,25 +39,27 @@ exports.postRegister = async (req, res) => {
 
 }
 
-exports.getLogin = (req,res)=>{
-    res.render('login',{email : null,error:null})
+exports.getLogin = (req, res) => {
+    res.render('login', { email: null, error: null })
 }
 
-exports.postLogin = async(req,res)=>{
-    const {email,password} = req.body;
-    const userExist = await User.findOne({email})
-    if(!userExist){
-        res.render('login',{ error : "user not exist",email })
+exports.postLogin = async (req, res) => {
+    const { email, password } = req.body;
+    const userExist = await User.findOne({ email })
+    if (!userExist) {
+        return res.render('login', { error: "user not exist", email })
     }
-    const isMatch = await bcrypt.compare(password,userExist.password)
-    if(isMatch){
+    const isMatch = await bcrypt.compare(password, userExist.password)
+    if (isMatch) {
 
-        const token = jwt.sign({id:userExist._id},process.env.JWT_SECRET,{expiresIn : process.env.JWT_EXP});
-        res.cookie('token' , token)
-        return res.send('login successfully');
+        const token = jwt.sign({ id: userExist._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXP });
+        res.cookie('token', token, {
+            httpOnly: true
+        })
+        return res.render('home');
     }
-    else{
-        res.render('login',{email,error : 'wrong Credential'})
+    else {
+        res.render('login', { email, error: 'wrong Credential' })
     }
 
 

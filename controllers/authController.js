@@ -2,7 +2,8 @@
 const mongoose = require('mongoose')
 const User = require('../models/userModel')
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const {authMiddleware} = require('../middleware/authmiddleware')
 
 exports.getRegister = (req, res) => {
     res.render('register', {
@@ -56,12 +57,20 @@ exports.postLogin = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true
         })
-        return res.render('home');
+        return res.redirect('home');
     }
     else {
         res.render('login', { email, error: 'wrong Credential' })
     }
-
-
 }
+
+exports.gethome = (req,res)=>{
+    res.render('home',{user : req.user});
+};
+
+exports.getLogout = (req, res) => {
+   res.clearCookie("token");
+   return res.redirect("/login");
+};
+
 

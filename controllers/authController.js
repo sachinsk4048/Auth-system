@@ -7,7 +7,9 @@ const {authMiddleware} = require('../middleware/authmiddleware')
 
 exports.getRegister = (req, res) => {
     res.render('register', {
-        error: null
+        error: null,
+        title : 'Register',
+        user: req.user 
     });
 }
 
@@ -17,7 +19,9 @@ exports.postRegister = async (req, res) => {
         const emailExist = await User.findOne({ email })
         if (emailExist) {
             return res.render("register", {
-                error: "Email already exists"
+                error: "Email already exists",
+                title : 'Register',
+                user: req.user
             });
         }
         bcrypt.genSalt(10, (err, salt) => {
@@ -28,27 +32,31 @@ exports.postRegister = async (req, res) => {
                     password: hash
                 })
                 res.render('login', {
-                    email
+                    email,
+                    title : 'Log In',
+                    user: req.user
                 });
             })
         })
     } catch (err) {
         res.render('register', {
-            error: "somethig went wrong"
+            error: "somethig went wrong",
+            title : 'Register',
+            user: req.user
         })
     }
 
 }
 
 exports.getLogin = (req, res) => {
-    res.render('login', { email: null, error: null })
+    res.render('login', { email: null, error: null,title : 'Login In',user: req.user })
 }
 
 exports.postLogin = async (req, res) => {
     const { email, password } = req.body;
     const userExist = await User.findOne({ email })
     if (!userExist) {
-        return res.render('login', { error: "user not exist", email })
+        return res.render('login', { error: "user not exist", email ,title : 'Login In',user: req.user})
     }
     const isMatch = await bcrypt.compare(password, userExist.password)
     if (isMatch) {
@@ -57,15 +65,15 @@ exports.postLogin = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true
         })
-        return res.redirect('home');
+        return res.redirect('/home');
     }
     else {
-        res.render('login', { email, error: 'wrong Credential' })
+        res.render('login', { email, error: 'wrong Credential' ,title : 'Login In',user: req.user})
     }
 }
 
 exports.gethome = (req,res)=>{
-    res.render('home',{user : req.user});
+    res.render('home',{user : req.user,title : 'Home',user: req.user});
 };
 
 exports.getLogout = (req, res) => {
